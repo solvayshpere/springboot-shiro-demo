@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.solvay.shiro.dao.TUserDao">
+
+    <resultMap id="BaseResultMap" type="com.solvay.shiro.entity.TUser">
+        <!--@Table t_user-->
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="salt" column="salt" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          id, username, password, salt
+        from shiro.t_user
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select
+          id, username, password, salt
+        from shiro.t_user
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+          id, username, password, salt
+        from shiro.t_user
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="username != null and username != ''">
+                and username = #{username}
+            </if>
+            <if test="password != null and password != ''">
+                and password = #{password}
+            </if>
+            <if test="salt != null and salt != ''">
+                and salt = #{salt}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into shiro.t_user(username, password, salt)
+        values (#{username}, #{password}, #{salt})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update shiro.t_user
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="salt != null and salt != ''">
+                salt = #{salt},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from shiro.t_user where id = #{id}
+    </delete>
+
+    <select id="findByUsername" parameterType="java.lang.String" resultType="com.solvay.shiro.entity.TUser">
+        select * from t_user where username=#{username}
+    </select>
+
+    <!--查询的是一个用户对应的多个角色信息-->
+    <resultMap id="userMap" type="com.solvay.shiro.entity.TUser">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <collection property="roles" javaType="list" ofType="com.solvay.shiro.entity.TRole">
+            <id column="rid" property="id"/>
+            <result column="name" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="findRolesByUsername" parameterType="java.lang.String" resultMap="userMap">
+        SELECT
+            u.id,u.username,r.id rid,r.name
+        from
+            t_user u
+        left join
+            t_user_role ur
+        on
+            u.id = ur.userid
+        left join
+            t_role r
+        on
+            r.id = ur.roleid
+        where
+            u.username = #{username}
+    </select>
+
+    <select id="findPermsByRoleId" parameterType="java.lang.Integer" resultType="com.solvay.shiro.entity.TPerms">
+        select p.id,p.name,r.name
+        from
+            t_role r
+        left join
+            t_role_perms rp
+        on
+            rp.roleid=r.id
+        left join
+            t_perms p
+        on
+            p.id = rp.permsid
+        where r.id=#{id}
+    </select>
+
+</mapper>
