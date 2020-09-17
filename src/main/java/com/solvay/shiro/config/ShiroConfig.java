@@ -35,6 +35,7 @@ public class ShiroConfig {
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
 
+
         return shiroFilterFactoryBean;
     }
     
@@ -43,6 +44,8 @@ public class ShiroConfig {
     public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("realm") Realm realm){
         DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
         defaultWebSecurityManager.setRealm(realm);
+
+
         return defaultWebSecurityManager;
     }
 
@@ -54,6 +57,8 @@ public class ShiroConfig {
         credentialsMatcher.setHashAlgorithmName("MD5");
         credentialsMatcher.setHashIterations(1024);
         customerRealm.setCredentialsMatcher(credentialsMatcher);
+
+
 
         //开启缓存管理器
         customerRealm.setCachingEnabled(true);
